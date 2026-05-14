@@ -1,0 +1,18 @@
+# nvidia/cuda container, with some extra software installed
+FROM nvidia/cuda:13.1.2-runtime-ubuntu24.04
+ARG ARCH=x86_64
+ARG MINIFORGE_VERSION=26.3.2-2
+
+SHELL ["/bin/bash", "-c"]
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PATH=/opt/miniforge/bin:$PATH
+
+RUN \
+    apt-get update && \
+    apt-get install -y wget unzip git curl && \
+    # Install Miniforge
+    wget -nv -O conda.sh https://github.com/conda-forge/miniforge/releases/download/$MINIFORGE_VERSION/Miniforge3-$MINIFORGE_VERSION-Linux-${ARCH}.sh && \
+    bash conda.sh -b -p /opt/miniforge
+RUN \
+    mamba create -y -n gpu_test python=3.12 numpy pytest cuda-bindings=13.1 cuda-version=13.1

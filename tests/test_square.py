@@ -1,6 +1,12 @@
 import numpy as np
+from cuda.bindings import runtime
 
 import example
+
+
+def test_cuda_device_available():
+    status, _ = runtime.cudaGetDeviceCount()
+    assert status == runtime.cudaError_t.cudaSuccess
 
 
 def test_square():

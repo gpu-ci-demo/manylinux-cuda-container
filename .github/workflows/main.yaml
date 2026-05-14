@@ -4,7 +4,13 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'ci/**'
+      - '.github/workflows/containers.yml'
   pull_request:
+    paths-ignore:
+      - 'ci/**'
+      - '.github/workflows/containers.yml'
 
 permissions:
   contents: read

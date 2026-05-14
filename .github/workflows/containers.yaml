@@ -17,6 +17,12 @@ jobs:
   build-and-push-image:
     name: Build CI containers
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        container_tag:
+          - cuda_build
+          - cuda_test
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -31,6 +37,6 @@ jobs:
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f
         with:
           context: ci
-          file: ci/Dockerfile.cuda_build
+          file: ci/Dockerfile.${{ matrix.container_tag }}
           push: true
-          tags: ghcr.io/gpu-ci-demo/example_gpu_ci:cuda_build
+          tags: ghcr.io/gpu-ci-demo/example_gpu_ci:${{ matrix.container_tag }}

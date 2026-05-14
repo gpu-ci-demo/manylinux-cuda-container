@@ -1,12 +1,12 @@
 # nvidia/cuda container, with some extra software installed
 FROM nvcr.io/nvidia/cuda:13.1.2-devel-rockylinux8
 ARG ARCH=x86_64
-ARG MINIFORGE_VERSION=25.11.0-1
+ARG MINIFORGE_VERSION=26.3.2-2
 ARG CMAKE_VERSION=4.1.0
 
 SHELL ["/bin/bash", "-c"]
 
-ENV PATH=/opt/miniforge/bin:/usr/local/ninja:$PATH
+ENV PATH=/opt/miniforge/bin:$PATH
 # Use GCC Toolset 10, which lets us use GCC 10 on Rockylinux 8
 # (Rockylinux 8 ships with GCC 8.5 by default.)
 ENV CC=/opt/rh/gcc-toolset-10/root/usr/bin/gcc
@@ -19,7 +19,7 @@ RUN \
     dnf -y install dnf-plugins-core && \
     dnf config-manager --set-enabled powertools && \
     dnf install -y tar unzip wget xz git which ninja-build gcc-toolset-10-gcc gcc-toolset-10-binutils gcc-toolset-10-gcc-c++ && \
-    # Miniforge
+    # Install Miniforge
     wget -nv -O conda.sh https://github.com/conda-forge/miniforge/releases/download/$MINIFORGE_VERSION/Miniforge3-$MINIFORGE_VERSION-Linux-${ARCH}.sh && \
     bash conda.sh -b -p /opt/miniforge
 RUN python -m pip install build
