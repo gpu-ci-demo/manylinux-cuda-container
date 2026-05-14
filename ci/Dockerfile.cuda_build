@@ -22,4 +22,4 @@ RUN \
     # Install Miniforge
     wget -nv -O conda.sh https://github.com/conda-forge/miniforge/releases/download/$MINIFORGE_VERSION/Miniforge3-$MINIFORGE_VERSION-Linux-${ARCH}.sh && \
     bash conda.sh -b -p /opt/miniforge
-RUN python -m pip install build
+RUN mamba create -y -n gpu_build python=3.12 python-build

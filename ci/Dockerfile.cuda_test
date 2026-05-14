@@ -14,5 +14,4 @@ RUN \
     # Install Miniforge
     wget -nv -O conda.sh https://github.com/conda-forge/miniforge/releases/download/$MINIFORGE_VERSION/Miniforge3-$MINIFORGE_VERSION-Linux-${ARCH}.sh && \
     bash conda.sh -b -p /opt/miniforge
-RUN \
-    mamba create -y -n gpu_test python=3.12 numpy pytest cuda-bindings=13.1 cuda-version=13.1
+RUN mamba create -y -n gpu_test python=3.12 numpy pytest cuda-bindings=13.1 cuda-version=13.1
