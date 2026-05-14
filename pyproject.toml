@@ -8,3 +8,4 @@ version = "0.0.1"
 
 [tool.scikit-build]
 cmake.source-dir = "example"
+wheel.py-api = "cp312"
