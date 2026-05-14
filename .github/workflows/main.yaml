@@ -8,13 +8,17 @@ on:
 
 permissions:
   contents: read
+  packages: read
 
 jobs:
-  build:
+  build-wheel:
     name: Build wheel
     runs-on: ubuntu-latest
     container:
-      image: nvidia/cuda:13.1.2-devel-rockylinux8
+      image: ghcr.io/gpu-ci-demo/example_gpu_ci:cuda_build
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v6.0.2
       - run: python -m build -v --wheel

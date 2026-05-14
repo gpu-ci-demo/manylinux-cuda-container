@@ -1,0 +1,23 @@
+FROM nvcr.io/nvidia/cuda:13.1.2-devel-rockylinux8
+ARG ARCH=x86_64
+ARG MINIFORGE_VERSION=25.11.0-1
+ARG CMAKE_VERSION=4.1.0
+
+SHELL ["/bin/bash", "-c"]
+
+ENV PATH=/opt/miniforge/bin:/usr/local/ninja:$PATH
+ENV CC=/opt/rh/gcc-toolset-10/root/usr/bin/gcc
+ENV CXX=/opt/rh/gcc-toolset-10/root/usr/bin/c++
+ENV CPP=/opt/rh/gcc-toolset-10/root/usr/bin/cpp
+ENV CUDAHOSTCXX=/opt/rh/gcc-toolset-10/root/usr/bin/c++
+ENV GOSU_VERSION=1.10
+
+RUN \
+    dnf -y update && \
+    dnf -y install dnf-plugins-core && \
+    dnf config-manager --set-enabled powertools && \
+    dnf install -y tar unzip wget xz git which ninja-build gcc-toolset-10-gcc gcc-toolset-10-binutils gcc-toolset-10-gcc-c++ && \
+    # Miniforge
+    wget -nv -O conda.sh https://github.com/conda-forge/miniforge/releases/download/$MINIFORGE_VERSION/Miniforge3-$MINIFORGE_VERSION-Linux-${ARCH}.sh && \
+    bash conda.sh -b -p /opt/miniforge
+RUN python -m pip install build

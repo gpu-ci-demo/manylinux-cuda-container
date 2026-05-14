@@ -1,0 +1,36 @@
+name: Build CI containers
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'ci/**'
+      - '.github/workflows/containers.yml'
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  build-and-push-image:
+    name: Build CI containers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Log in to the Container registry
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f
+        with:
+          context: ci
+          file: ci/Dockerfile.cuda_build
+          push: true
+          tags: ghcr.io/gpu-ci-demo/example_gpu_ci:cuda_build
