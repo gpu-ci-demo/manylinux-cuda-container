@@ -11,9 +11,9 @@ FROM $BASE_IMAGE
 RUN dnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo
 
 # error mirrorlist.centos.org doesn't exists anymore.
-RUN sed -i 's/mirror.centos.org/vault.centos.org/g' '/etc/yum.repos.d/*.repo' && \
-sed -i 's/^#.*baseurl=http/baseurl=http/g' '/etc/yum.repos.d/*.repo' && \
-sed -i 's/^mirrorlist=http/#mirrorlist=http/g' '/etc/yum.repos.d/*.repo'
+RUN sed -i 's/mirror.centos.org/vault.centos.org/g' /etc/yum.repos.d/*.repo && \
+    sed -i 's/^#.*baseurl=http/baseurl=http/g' /etc/yum.repos.d/*.repo && \
+    sed -i 's/^mirrorlist=http/#mirrorlist=http/g' /etc/yum.repos.d/*.repo
 
 # Turns '12.8' -> '12-8' for use below...
 # ENV CUDA_DASH_VERSION=$(sed -i 's/\./-/g' ${{ matrix.cuda-version }})
