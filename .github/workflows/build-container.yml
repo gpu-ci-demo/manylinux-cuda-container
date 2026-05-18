@@ -24,7 +24,7 @@ jobs:
       matrix:
         nccl-version: [2.29]
         cuda-version: [12_9, 13_1]
-        manylinux-base: [manylinux_2_28_x86_64, manylinux_2_31_x86_64, manylinux_2_34_x86_64]
+        manylinux-base: [manylinux_2_28_x86_64, manylinux_2_34_x86_64]
 
     steps:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
