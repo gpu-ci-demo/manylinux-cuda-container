@@ -1,12 +1,12 @@
-ARG CUDA_VERSION=12.8
-ARG REGISTRY=quay.io
-ARG OWNER=pypa
-ARG MANYLINUX_BASE=manylinux_2_28_x86_64
+ARG CUDA_VERSION
+ARG NCCL_VERSION
+ARG MANYLINUX_BASE
+ARG MANYLINUX_REGISTRY=quay.io
+ARG MANYLINUX_OWNER=pypa
 
-ARG BASE_IMAGE=$REGISTRY/$OWNER/$MANYLINUX_BASE:latest
+ARG BASE_IMAGE=$MANYLINUX_REGISTRY/$MANYLINUX_OWNER/$MANYLINUX_BASE:latest
 
 FROM $BASE_IMAGE
-
 
 RUN dnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo
 
@@ -15,16 +15,17 @@ RUN sed -i 's/mirror.centos.org/vault.centos.org/g' /etc/yum.repos.d/*.repo && \
     sed -i 's/^#.*baseurl=http/baseurl=http/g' /etc/yum.repos.d/*.repo && \
     sed -i 's/^mirrorlist=http/#mirrorlist=http/g' /etc/yum.repos.d/*.repo
 
-# Turns '12.8' -> '12-8' for use below...
-# ENV CUDA_DASH_VERSION=$(sed -i 's/\./-/g' ${{ matrix.cuda-version }})
+# Turns '12_8' -> '12-8' for use below
+ENV CUDA_DASH_VERSION=$(echo $CUDA_VERSION | sed 's/_/-/g')
 
 RUN dnf install --setopt=obsoletes=0 -y \
-  cuda-nvcc-12-8-12.8.93-1 \
-  cuda-cudart-devel-12-8-12.8.90-1 \
-  libcurand-devel-12-8-10.3.9.90-1 \
-  libcudnn9-devel-cuda-12-9.10.2.21-1 \
-  libcublas-devel-12-8-12.8.4.1-1 \
-  libnccl-2.26.2-1+cuda12.8 \
-  libnccl-devel-2.26.2-1+cuda12.8
+  cuda-nvcc-${CUDA_DASH_VERSION} \
+  cuda-cudart-devel-${CUDA_DASH_VERSION} \
+  libcurand-devel-${CUDA_DASH_VERSION} \
+  libcudnn9-devel-cuda-${CUDA_DASH_VERSION} \
+  libcublas-devel-${CUDA_DASH_VERSION} \
+  libnccl-${NCCL_VERSION} \
+  libnccl-devel-${NCCL_VERSION}
 
-RUN ln -s cuda-12.8 /usr/local/cuda
+ENV PATH=/usr/local/cuda/bin:$PATH
+ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64/:$LD_LIBRARY_PATH
