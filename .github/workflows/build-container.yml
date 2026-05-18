@@ -49,4 +49,5 @@ jobs:
           tags: ghcr.io/gpu-ci-demo/${{ matrix.manylinux-base }}_${{ matrix.cuda-version }}:latest
           build-args: |
             CUDA_VERSION=${{ matrix.cuda-version }}
+            NCCL_VERSION=${{ matrix.nccl-version }}
             MANYLINUX_BASE=${{ matrix.manylinux-base }}
