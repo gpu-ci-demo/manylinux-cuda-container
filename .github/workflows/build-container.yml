@@ -1,0 +1,44 @@
+name: Build containers (deploy)
+
+permissions: {}
+
+on:
+  workflow_dispatch:
+  push:
+  schedule:
+    - cron: "0 7 * * 1"  # Run once weekly
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  trigger-build:
+    name: Build containers (deploy)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cuda-version: [12.8]
+        manylinux_container: [ manylinux_2_28_x86_64 ]
+    steps:
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          fetch-depth: 0  # get the non-merge commit for PRs
+          fetch-tags: true # include tags to get correct version from setuptools_scm
+          persist-credentials: false
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f
+        with:
+          context: ci
+          file: ci/Dockerfile
+          push: true
+          tags: ghcr.io/gpu-ci-demo/${{ matrix.manylinux_container }}_12_8:latest
