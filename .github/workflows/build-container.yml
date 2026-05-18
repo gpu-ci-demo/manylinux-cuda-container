@@ -22,7 +22,6 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        nccl-version: [2.29]
         cuda-version: [12_9, 13_1]
         manylinux-base: [manylinux_2_28_x86_64, manylinux_2_34_x86_64]
 
