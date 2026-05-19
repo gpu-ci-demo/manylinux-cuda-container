@@ -18,9 +18,9 @@ RUN sed -i 's/mirror.centos.org/vault.centos.org/g' /etc/yum.repos.d/*.repo && \
     sed -i 's/^#.*baseurl=http/baseurl=http/g' /etc/yum.repos.d/*.repo && \
     sed -i 's/^mirrorlist=http/#mirrorlist=http/g' /etc/yum.repos.d/*.repo
 
-# Turns '12_8' -> '12-8' for use below
-RUN export CUDA_DASH_VERSION=$(echo ${CUDA_VERSION} | sed 's/_/-/g') && \
-  export CUDA_MAJOR_VERSION=${CUDA_VERSION%_[0-9]*} && \
+# Turns '12.8' -> '12-8' for use below
+RUN export CUDA_DASH_VERSION=$(echo ${CUDA_VERSION} | sed 's/\./-/g') && \
+  export CUDA_MAJOR_VERSION=${CUDA_VERSION%.[0-9]*} && \
   dnf install --setopt=obsoletes=0 -y \
   cuda-nvcc-${CUDA_DASH_VERSION} \
   cuda-cudart-devel-${CUDA_DASH_VERSION} \
