@@ -35,6 +35,13 @@ jobs:
 
       - uses: actions/setup-python@v6
 
+      - name: Log in to the Container registry
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
         env:
