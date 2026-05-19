@@ -37,7 +37,7 @@ jobs:
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.2.1
-        with:
+        env:
           MANYLINUX_X86_64_IMAGE: "ghcr.io/gpu-ci-demo/example_gpu_ci:cuda_build"
 
       - name: Upload wheels
