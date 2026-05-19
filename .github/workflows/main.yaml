@@ -51,5 +51,28 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
-          name: wheels_windows_x86_64__${{ github.sha }}
+          name: python-wheel
           path: ./wheelhouse/*.whl
+
+  test-wheel:
+    name: Test wheel
+    needs: build-wheels
+    runs-on:
+      group: cuda-gpu-runner-group
+    container:
+      # Use a modified version of nvidia/cuda container
+      image: ghcr.io/gpu-ci-demo/example_gpu_ci:cuda_test
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+      options: "--gpus all"
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: python-wheel
+      - name: Run pytests
+        run: |
+          source activate gpu_test
+          python -m pip install ./example-*.whl
+          python -m pytest -v tests/
