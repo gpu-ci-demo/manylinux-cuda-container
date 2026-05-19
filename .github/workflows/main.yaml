@@ -24,70 +24,24 @@ defaults:
     shell: bash -l {0}
 
 jobs:
-  build-wheel:
-    name: Build wheel
+  build-wheels:
+    name: Build wheels
     runs-on: ubuntu-latest
-    container:
-      # Use a modified version of nvidia/cuda container
-      image: ghcr.io/gpu-ci-demo/example_gpu_ci:cuda_build
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@v6.0.2
-      - run: |
-          source activate gpu_build
-          python -m build -v --wheel
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: python-wheel
-          path: dist/example-*.whl
 
-  patch-wheel:
-    # Patch the Python wheel so that it's compliant with manylinux standard
-    name: Patch wheel using auditwheel
-    needs: build-wheel
-    runs-on: ubuntu-latest
-    container:
-      image: quay.io/pypa/manylinux_2_28_x86_64
     steps:
-      - name: Pick Python
-        run: |
-          export PATH=/opt/python/cp312-cp312/bin/:$PATH
-          echo ${PATH} >> $GITHUB_PATH
-      - name: Install dependencies
-        run: |
-          pip install wheel auditwheel
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+      - uses: actions/checkout@v6
         with:
-          name: python-wheel
-      - name: Patch wheel
-        run: |
-          auditwheel repair --only-plat --plat ${{ env.WHEEL_TAG }} example-*.whl
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: python-wheel-patched
-          path: wheelhouse/example-*.whl
+          persist-credentials: false
 
-  test-wheel:
-    name: Test wheel
-    needs: patch-wheel
-    runs-on:
-      group: cuda-gpu-runner-group
-    container:
-      # Use a modified version of nvidia/cuda container
-      image: ghcr.io/gpu-ci-demo/example_gpu_ci:cuda_test
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-      options: "--gpus all"
-    steps:
-      - uses: actions/checkout@v6.0.2
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+      - uses: actions/setup-python@v6
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v3.2.1
         with:
-          name: python-wheel-patched
-      - name: Run pytests
-        run: |
-          source activate gpu_test
-          python -m pip install ./example-*.whl
-          python -m pytest -v tests/
+          manylinux_x86_64-image: "ghcr.io/gpu-ci-demo/example_gpu_ci:cuda_build"
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: wheels_windows_x86_64__${{ github.sha }}
+          path: ./wheelhouse/*.whl
