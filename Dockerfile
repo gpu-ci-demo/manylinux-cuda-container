@@ -1,17 +1,16 @@
-ARG CUDA_VERSION
-ARG MANYLINUX_BASE
-ARG MANYLINUX_REGISTRY=quay.io
-ARG MANYLINUX_OWNER=pypa
+ARG CUDA_VERSION=13_1
+ARG MANYLINUX_BASE=manylinux_2_28
+ARG ARCH=x86_64
 
-ARG BASE_IMAGE=$MANYLINUX_REGISTRY/$MANYLINUX_OWNER/$MANYLINUX_BASE:latest
-
-FROM $BASE_IMAGE
+FROM quay.io/pypa/${MANYLINUX_BASE}_${ARCH}:latest
 
 ARG CUDA_VERSION
+ARG ARCH
 
 SHELL ["/bin/bash", "-c"]
 
-RUN dnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo
+RUN { [ ${ARCH} = "aarch64" ] && export CUDA_REPO_ARCH="sbsa" || export CUDA_REPO_ARCH="x86_64"; } && \
+    dnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/${CUDA_REPO_ARCH}/cuda-rhel8.repo
 
 # error mirrorlist.centos.org doesn't exists anymore.
 RUN sed -i 's/mirror.centos.org/vault.centos.org/g' /etc/yum.repos.d/*.repo && \

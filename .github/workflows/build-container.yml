@@ -1,4 +1,4 @@
-name: Build containers (deploy)
+name: Build containers
 
 
 permissions:
@@ -18,12 +18,13 @@ concurrency:
 
 jobs:
   trigger-build:
-    name: Build containers (deploy)
-    runs-on: ubuntu-latest
+    name: Build containers
     strategy:
       matrix:
         cuda-version: [12_9, 13_1]
-        manylinux-base: [manylinux_2_28_x86_64, manylinux_2_34_x86_64]
+        arch: [x86_64, aarch64]
+        manylinux-base: [manylinux_2_28, manylinux_2_34]
+    runs-on: ${{ matrix.arch == 'x86_64' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
 
     steps:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
@@ -45,8 +46,9 @@ jobs:
         with:
           file: Dockerfile
           push: true
-          tags: ghcr.io/gpu-ci-demo/${{ matrix.manylinux-base }}_${{ matrix.cuda-version }}:latest
+          tags: ghcr.io/gpu-ci-demo/${{ matrix.manylinux-base }}_${{ matrix.arch }}_cuda${{ matrix.cuda-version }}:latest
           build-args: |
             CUDA_VERSION=${{ matrix.cuda-version }}
             NCCL_VERSION=${{ matrix.nccl-version }}
             MANYLINUX_BASE=${{ matrix.manylinux-base }}
+            ARCH=${{ matrix.arch }}
