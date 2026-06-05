@@ -33,12 +33,12 @@ jobs:
           fetch-tags: true # include tags to get correct version from setuptools_scm
           persist-credentials: false
 
-      - name: Log in to the Container registry
+      - name: Log in to quay.io container registry
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: quay.io
+          username: ${{ secrets.QUAY_IO_USERNAME }}
+          password: ${{ secrets.QUAY_IO_PASSWORD }}
 
       - name: Build and push Docker image
         id: push
@@ -46,7 +46,7 @@ jobs:
         with:
           file: Dockerfile
           push: true
-          tags: ghcr.io/gpu-ci-demo/${{ matrix.manylinux-base }}_${{ matrix.arch }}_cuda${{ matrix.cuda-version }}:latest
+          tags: quay.io/manylinux_cuda/${{ matrix.manylinux-base }}_${{ matrix.arch }}_cuda${{ matrix.cuda-version }}:latest
           build-args: |
             CUDA_VERSION=${{ matrix.cuda-version }}
             NCCL_VERSION=${{ matrix.nccl-version }}
