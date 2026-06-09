@@ -29,8 +29,6 @@ jobs:
     steps:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
         with:
-          fetch-depth: 0  # get the non-merge commit for PRs
-          fetch-tags: true # include tags to get correct version from setuptools_scm
           persist-credentials: false
 
       - name: Log in to quay.io container registry
@@ -40,13 +38,26 @@ jobs:
           username: ${{ secrets.QUAY_IO_USERNAME }}
           password: ${{ secrets.QUAY_IO_PASSWORD }}
 
+      - name: Compute image tag
+        id: compute-image-tag
+        run: |
+          COMMIT_SHA=${{ github.sha }}
+          COMMIT_DATE=$(git show -s --format=%cd --date=short ${COMMIT_SHA})
+          BUILD_NUMBER=$(git rev-list "--since=${COMMIT_DATE}T00:00:00Z" --first-parent --count ${COMMIT_SHA})
+          IMAGE_TAG=${COMMIT_DATE//-/.}-${BUILD_NUMBER}
+          IMAGE_REPO=quay.io/manylinux_cuda/${{ matrix.manylinux-base }}_${{ matrix.arch }}_cuda${{ matrix.cuda-version }}
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "IMAGE_REPO=${IMAGE_REPO}" >> "$GITHUB_OUTPUT"
+
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f
         with:
           file: Dockerfile
           push: true
-          tags: quay.io/manylinux_cuda/${{ matrix.manylinux-base }}_${{ matrix.arch }}_cuda${{ matrix.cuda-version }}:latest
+          tags: |
+            ${{ steps.compute-image-tag.outputs.IMAGE_REPO }}:latest
+            ${{ steps.compute-image-tag.outputs.IMAGE_REPO }}:${{ steps.compute-image-tag.outputs.IMAGE_TAG }}
           build-args: |
             CUDA_VERSION=${{ matrix.cuda-version }}
             NCCL_VERSION=${{ matrix.nccl-version }}
