@@ -23,6 +23,7 @@ RUN export CUDA_DASH_VERSION=$(echo ${CUDA_VERSION} | sed 's/_/-/g') && \
   dnf install --setopt=obsoletes=0 -y \
   cuda-nvcc-${CUDA_DASH_VERSION} \
   cuda-cudart-devel-${CUDA_DASH_VERSION} \
+  cuda-driver-devel-${CUDA_DASH_VERSION} \
   libcurand-devel-${CUDA_DASH_VERSION} \
   libcudnn9-devel-cuda-${CUDA_MAJOR_VERSION} \
   libcublas-devel-${CUDA_DASH_VERSION} \
