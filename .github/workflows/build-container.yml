@@ -21,7 +21,7 @@ jobs:
     name: Build containers
     strategy:
       matrix:
-        cuda-version: [12_9, 13_1]
+        cuda-version: [12_2, 12_9, 13_0, 13_1]
         arch: [x86_64, aarch64]
         manylinux-base: [manylinux_2_28, manylinux_2_34]
     runs-on: ${{ matrix.arch == 'x86_64' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
