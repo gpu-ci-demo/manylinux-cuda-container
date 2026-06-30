@@ -28,7 +28,10 @@ RUN export CUDA_DASH_VERSION=$(echo ${CUDA_VERSION} | sed 's/_/-/g') && \
   libcudnn9-devel-cuda-${CUDA_MAJOR_VERSION} \
   libcublas-devel-${CUDA_DASH_VERSION} \
   libnccl \
-  libnccl-devel
+  libnccl-devel && \
+  { [ "${CUDA_VERSION}" = "12_2" ] && dnf install -y gcc-toolset-12-gcc gcc-toolset-12-gcc-c++ || true; }
 
-ENV PATH=/usr/local/cuda/bin:$PATH
+# CUDA 12.2 needs host GCC <= 12; gcc-toolset-12 (above) goes first on PATH.
+# The dir is absent on other images (12.9, 13.x), so GCC 14 is used there.
+ENV PATH=/opt/rh/gcc-toolset-12/root/usr/bin:/usr/local/cuda/bin:$PATH
 ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64/:$LD_LIBRARY_PATH
