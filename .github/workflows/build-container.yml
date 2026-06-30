@@ -20,6 +20,7 @@ jobs:
   trigger-build:
     name: Build containers
     strategy:
+      fail-fast: false
       matrix:
         cuda-version: [12_2, 12_9, 13_0, 13_1]
         arch: [x86_64, aarch64]
