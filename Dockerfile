@@ -29,7 +29,9 @@ RUN export CUDA_DASH_VERSION=$(echo ${CUDA_VERSION} | sed 's/_/-/g') && \
   libcublas-devel-${CUDA_DASH_VERSION} \
   libnccl \
   libnccl-devel && \
-  { [ "${CUDA_VERSION}" = "12_2" ] && dnf install -y gcc-toolset-12-gcc gcc-toolset-12-gcc-c++ || true; }
+  { [ "${CUDA_VERSION}" = "12_2" ] && dnf install -y gcc-toolset-12-gcc gcc-toolset-12-gcc-c++ || true; } && \
+  dnf clean all && \
+  rm -rf /var/cache/dnf
 
 # CUDA 12.2 needs host GCC <= 12; gcc-toolset-12 (above) goes first on PATH.
 # The dir is absent on other images (12.9, 13.x), so GCC 14 is used there.
