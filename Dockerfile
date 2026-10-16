@@ -6,6 +6,7 @@ FROM quay.io/pypa/${MANYLINUX_BASE}_${ARCH}:latest
 
 ARG CUDA_VERSION
 ARG ARCH
+ARG SLIM=false
 
 SHELL ["/bin/bash", "-c"]
 
@@ -20,15 +21,21 @@ RUN sed -i 's/mirror.centos.org/vault.centos.org/g' /etc/yum.repos.d/*.repo && \
 # Turns '12_8' -> '12-8' for use below
 RUN export CUDA_DASH_VERSION=$(echo ${CUDA_VERSION} | sed 's/_/-/g') && \
   export CUDA_MAJOR_VERSION=${CUDA_VERSION%_[0-9]*} && \
+  cuda_libraries=() && \
+  if [ "${SLIM}" != "true" ]; then \
+    cuda_libraries=( \
+      libcurand-devel-${CUDA_DASH_VERSION} \
+      libcudnn9-devel-cuda-${CUDA_MAJOR_VERSION} \
+      libcublas-devel-${CUDA_DASH_VERSION} \
+    ); \
+  fi && \
   dnf install --setopt=obsoletes=0 -y \
   cuda-nvcc-${CUDA_DASH_VERSION} \
   cuda-cudart-devel-${CUDA_DASH_VERSION} \
   cuda-driver-devel-${CUDA_DASH_VERSION} \
-  libcurand-devel-${CUDA_DASH_VERSION} \
-  libcudnn9-devel-cuda-${CUDA_MAJOR_VERSION} \
-  libcublas-devel-${CUDA_DASH_VERSION} \
   libnccl \
-  libnccl-devel && \
+  libnccl-devel \
+  "${cuda_libraries[@]}" && \
   { [ "${CUDA_VERSION}" = "12_2" ] && dnf install -y gcc-toolset-12-gcc gcc-toolset-12-gcc-c++ || true; } && \
   dnf clean all && \
   rm -rf /var/cache/dnf
