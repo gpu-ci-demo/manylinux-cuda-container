@@ -25,6 +25,7 @@ jobs:
         cuda-version: [12_2, 12_8, 12_9, 13_0, 13_1]
         arch: [x86_64, aarch64]
         manylinux-base: [manylinux_2_28, manylinux_2_34]
+        variant: [full, slim]
     runs-on: ${{ matrix.arch == 'x86_64' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
 
     steps:
@@ -46,7 +47,7 @@ jobs:
           COMMIT_DATE=$(git show -s --format=%cd --date=short ${COMMIT_SHA})
           BUILD_NUMBER=$(git rev-list "--since=${COMMIT_DATE}T00:00:00Z" --first-parent --count ${COMMIT_SHA})
           IMAGE_TAG=${COMMIT_DATE//-/.}-${BUILD_NUMBER}
-          IMAGE_REPO=quay.io/manylinux_cuda/${{ matrix.manylinux-base }}_${{ matrix.arch }}_cuda${{ matrix.cuda-version }}
+          IMAGE_REPO=quay.io/manylinux_cuda/${{ matrix.manylinux-base }}_${{ matrix.arch }}_cuda${{ matrix.cuda-version }}${{ matrix.variant == 'slim' && '-slim' || '' }}
           echo "IMAGE_TAG=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
           echo "IMAGE_REPO=${IMAGE_REPO}" >> "$GITHUB_OUTPUT"
 
@@ -64,3 +65,4 @@ jobs:
             NCCL_VERSION=${{ matrix.nccl-version }}
             MANYLINUX_BASE=${{ matrix.manylinux-base }}
             ARCH=${{ matrix.arch }}
+            SLIM=${{ matrix.variant == 'slim' }}
